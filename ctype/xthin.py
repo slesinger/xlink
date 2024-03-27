@@ -1,4 +1,5 @@
 import ctypes
+import os
 
 C_libxlink = ctypes.CDLL("libxlink.so")
 # C_xthin = ctypes.CDLL("xthin.so")
@@ -60,7 +61,38 @@ def xlink_save(memory: int, bank: int, address: int, data: str, size: int) -> bo
 #==============================================================================
 
 backup_screen = ctypes.create_string_buffer(40*25)
-    
+xthin_screen = ctypes.create_string_buffer(40*25)
+# write "HONDANI" ascii logo to the xthin screen
+xthin_screen[0:7] = bytes([0x48, 0x4f, 0x4e, 0x44, 0x41, 0x4e, 0x49])
+thin_mode = False    
+
+def enable_thin_mode():
+    global thin_mode
+    rc = xlink_poke(memory, BANK, 0xd020, 0x00)  # indicate thin mode enabled
+    print(f"enter thin mode {rc}")
+    rc = xlink_save(memory, BANK, ADDRESS, backup_screen, 40*25)  # save screen memory (40x25, 1 byte per character, 1 byte per color)
+    print(f"saved screen {rc}")
+    rc = xlink_load(memory, BANK, ADDRESS, xthin_screen, 40*25)  # load current xthin screen
+    print(f"xthin screen pushed {rc}")
+    thin_mode = True
+
+
+def disable_thin_mode():
+    global thin_mode
+    rc = xlink_load(memory, BANK, ADDRESS, backup_screen, 40*25)  # load screen memory (40x25, 1 byte per character, 1 byte per color)
+    print(f"restored {rc}")
+    rc = xlink_poke(memory, BANK, 0xd020, 0x0e)  # indicate thin mode disabled
+    print(f"exited {rc}")
+    thin_mode = False
+
+
+def list_directory():
+    # get current directory
+    pwd = os.getcwd()
+    xthin_screen[40:40+len(pwd)] = pwd.encode()
+    rc = xlink_load(memory, BANK, ADDRESS, xthin_screen, 40*25)  # load current xthin screen
+    print(f"xthin screen pushed {rc}")
+
 
 def wait_key() -> int:
     key_input: bytes = b' ';
@@ -70,30 +102,31 @@ def wait_key() -> int:
     xlink_end()
     return key_input
 
+
 def dispatch_key(key: int):
         key_int = int.from_bytes(key, "big")
+        xlink_end()
 
         if key_int == 0x40:
-            xlink_end()
             return
 
         print(key_int)
 
-        if key_int == 0x39:  # left arrow enter thin mode
-            xlink_end()
-            rc = xlink_poke(memory, BANK, 0xd020, 0x00)
-            print(f"enter {rc}")
-            rc = xlink_save(memory, BANK, ADDRESS, backup_screen, 40*25)  # save screen memory (40x25, 1 byte per character, 1 byte per color)
-            print(f"saved {rc}")
-            return
-
-        if (key_int == 0x3f): ## Run/Stop exit thin mode
-            xlink_end()
-            rc = xlink_load(memory, BANK, ADDRESS, backup_screen, 40*25)  # load screen memory (40x25, 1 byte per character, 1 byte per color)
-            print(f"restored {rc}")
-            rc = xlink_poke(memory, BANK, 0xd020, 0x0e)
-            print(f"exited {rc}")
-            return
+        if thin_mode == False:
+            if key_int == 0x39:  # left arrow enter thin mode
+                enable_thin_mode()
+                return
+        else:
+            # thin_mode == True
+            if (key_int == 0x3f): ## Run/Stop exit thin mode
+                disable_thin_mode()
+                return
+            
+            if (key_int == 0x2a):  # l
+                print("list")
+                list_directory()
+                return                
+                
 
 
 if __name__ == "__main__":

@@ -135,20 +135,18 @@ read_key: {
 	
 	lda $cb
 	sta $2a
-x:	sta $0400  // do something with the key change
-	inc x+1
+// x:	sta $0400  // do something with the key change
+// 	inc x+1
 	:write()
 	lda #$00   // set CIA2 port B to input
 	sta $dd03
 
-no_change_key:
-	lda $52    // previous key
-	eor $028D  // current key
-	beq read_key_end
-	lda $028D
-	sta $52
-y:	sta $0500  // do something with the key change
-	inc y+1
+no_change_key:  // check status of control, commodore and shift keys
+	// lda $52    // previous key
+	// eor $028D  // current key
+	// beq read_key_end
+	// lda $028D
+	// sta $52
 read_key_end:
 	rts
 }
