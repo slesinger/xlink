@@ -12,6 +12,8 @@ xlink
 *.rom
 *.res.o
 *.o
+*.dbg
+*.vs
 readline*
 testsuite
 extensions.c
@@ -29,3 +31,5 @@ TODO
 inpout32*
 Makefile.private
 libusb-1.0.26-binaries*
+.source.txt
+.vscode/

@@ -24,7 +24,12 @@
 .var cursor   = $cc     // Cursor blink flag (00=blinking)
 .var default  = $37     // Default processor port value
 .var booted   = repl    // How to exit the bootstrap server 
-   
+
+.var PRA  =  $dc00      // CIA#1 (Port Register A)
+.var DDRA =  $dc02      // CIA#1 (Data Direction Register A)
+.var PRB  =  $dc01      // CIA#1 (Port Register B)
+.var DDRB =  $dc03      // CIA#1 (Data Direction Register B)
+
 .if(target == "c128") {	
   .eval start = $c1     // Transfer start address
   .eval end   = $fd     // Transfer end address
