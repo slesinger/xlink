@@ -50,9 +50,9 @@ int main(int argc, char **argv)
         {
             fprintf(stdout, "enter ");
             xlink_end();
-            int rc = xlink_poke(0x37, 0, 0xd020, 0x00);
+            int rc = xlink_poke(memory, bank, 0xd020, 0x00);
             fprintf(stdout, "%d\n", rc);
-            rc = xlink_save(0x37, 0, 0x400, backup_screen, 40*25);  // save screen memory (40x25, 1 byte per character, 1 byte per color)
+            rc = xlink_save(memory, bank, address, backup_screen, 40*25);  // save screen memory (40x25, 1 byte per character, 1 byte per color)
             fprintf(stdout, "saved %d\n", rc);
             continue;
         }
@@ -60,9 +60,9 @@ int main(int argc, char **argv)
         if (key_input == 0x3f)  // Run/Stop exit thin mode
         {
             xlink_end();
-            int rc = xlink_load(0x37, 0, 0x400, backup_screen, 40*25);  // load screen memory (40x25, 1 byte per character, 1 byte per color)
+            int rc = xlink_load(memory, bank, address, backup_screen, 40*25);  // load screen memory (40x25, 1 byte per character, 1 byte per color)
             fprintf(stdout, "restored %d\n", rc);
-            rc = xlink_poke(0x37, 0, 0xd020, 0x0e);
+            rc = xlink_poke(memory, bank, 0xd020, 0x0e);
             fprintf(stdout, "exited %d\n", rc);
             continue;
             // return 0;
