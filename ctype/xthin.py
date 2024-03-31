@@ -8,7 +8,7 @@ drawer = Drawer()
 
 
 def wait_key() -> int:
-    key_input: str = " "
+    key_input: bytes = b' '
     xlink.begin()
     while not xlink.receive(key_input, 1):  # wait for key input
         xlink.begin()
@@ -24,7 +24,7 @@ def dispatch_key(key: int):
         if key == 0x40:  # no key pressed
             return
 
-        if thin_mode == False:
+        if drawer.thin_mode == False:
             if key == 0x39:  # left arrow enter thin mode
                 drawer.enable_thin_mode()
                 return

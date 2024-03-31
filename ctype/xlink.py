@@ -50,18 +50,14 @@ class Xlink():
     def end(self) -> None:
         xlink_end_fxn()
 
-    def receive(self, data: str, size: int) -> bool:
+    def receive(self, data:bytes, size: int) -> bool:
         return xlink_receive_fxn(data, size)
 
     def poke(self, memory: int, bank: int, address: int, value: int) -> bool:
         return xlink_poke_fxn(memory, bank, address, value)
 
-    def load(self, memory: int, bank: int, address: int, data: bytearray, size: int) -> bool:
+    def load(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
         return xlink_load_fxn(memory, bank, address, data, size)
 
-    def save(self, memory: int, bank: int, address: int, data: bytearray, size: int) -> bool:
-        try:
-            return xlink_save_fxn(memory, bank, address, bytes(data), size)
-        except Exception as e:
-            print(f"save failed {e}")
-            return False
+    def save(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
+        return xlink_save_fxn(memory, bank, address, bytes(data), size)

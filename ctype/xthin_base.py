@@ -11,12 +11,7 @@ class XthinBase():
     screen: TextScreen
     cursor: Cursor
    
-    def __init__(self, simulation=False) -> None:
-        # if simulation:
-        #     xlink = XlinkSimulation()
-        # else:
-        #     xlink = Xlink()
-
+    def __init__(self) -> None:
         self.screen = TextScreen()
         self.screen.clear()
 
@@ -44,7 +39,16 @@ class XthinBase():
         for change in changes:
             rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, self.screen.TEXT_SCREEN_SIZE)  # load current xthin screen
             rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, self.screen.TEXT_SCREEN_SIZE)  # load current xthin screen
-            print(f"xthin screen pushed {rc1} {rc2}")
+            print(f"screen pushed {rc1} {rc2}")
+            # self.draw_tty()
+            
+            
+    def draw_tty(self) -> None:
+        """Draw the screen to the terminal."""
+        for y in range(self.screen.TEXT_SCREEN_HEIGHT):
+            for x in range(self.screen.TEXT_SCREEN_WIDTH):
+                print(self.screen.buffer[y][x].get_ASCII(), end="")
+            print()
     
     
     def print(self, text: str) -> None:
@@ -55,7 +59,7 @@ class XthinBase():
     def print_at(self, text: str, x: int, y: int) -> None:
         """Print at specified position. Line wraps at end of screen. Does not move cursor."""
         for i in range(len(text)):
-            self.screen.buffer[y][x + i].put_char(text[i])
+            self.screen.put_char(text[i], x + i, y)
     
         
     def poke(self, address: int, value: int) -> int:
@@ -64,9 +68,9 @@ class XthinBase():
 
     def load(self, memory: int, address: int, data: bytearray, size: int) -> bool:
         """Load size bytes of data obtained from the memory area pointed to by data to address in the C64 memory."""
-        return xlink.load(memory, self.BANK, address, data, size)
+        return xlink.load(memory, self.BANK, address, bytes(data), size)
 
    
     def save(self, memory: int, address: int, data: bytearray, size: int) -> bool:
         """Read size bytes of data beginning from address in the C64 memory and store the result in the memory area pointed to by data. The caller has to make sure that enough memory is allocated for data beforehand."""
-        return xlink.save(memory, self.BANK, address, data, size)
+        return xlink.save(memory, self.BANK, address, bytes(data), size)
