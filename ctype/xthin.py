@@ -5,6 +5,7 @@ from xthin_toolkit import XthinToolkit
 from text_screen import TextScreen
 from c64_mem import C64Mem
 from c64_color import C64Color as Color
+from c64_keys import C64Keys
 import apps.drawer
 
 thin_mode = False
@@ -16,7 +17,7 @@ backup_screen: bytes = b'\1' * TextScreen.TEXT_SCREEN_SIZE  # TODO do also for c
 
 
 def on_key(key: int) -> None:
-    if key == 0x39:  # left arrow for exiting thin mode
+    if key == C64Keys.LEFT_ARROW:  # left arrow for exiting thin mode
         print("exit thin mode requested")
         disable_thin_mode()
         return
@@ -97,7 +98,7 @@ def dispatch_key(key: int):
     xlink.end()
     print(key)
 
-    if key == 0x40:  # no key pressed
+    if key == C64Keys.NO_KEY:  # no key pressed
         return
 
     if thin_mode == True:
@@ -106,7 +107,7 @@ def dispatch_key(key: int):
             return
 
     if thin_mode == False:
-        if key == 0x39:  # left arrow enter thin mode
+        if key == C64Keys.LEFT_ARROW:  # left arrow enter thin mode
             enable_thin_mode()
             return
     else:
