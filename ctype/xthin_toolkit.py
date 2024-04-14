@@ -24,7 +24,7 @@ class XthinToolkit():
         changes:list[GetChangesReturn] = self.screen.get_changes()
         for change in changes:
             rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
-            sleep(.1)  # next fails without this
+            sleep(.5)  # next fails without this
             # rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
             # sleep(.1)  # next fails without this
             print(f"screen pushed {rc1} {rc1}")

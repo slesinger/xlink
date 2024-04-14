@@ -1,4 +1,5 @@
 from time import sleep
+import traceback
 from xlink import Xlink
 from xthin_toolkit import XthinToolkit
 from text_screen import TextScreen
@@ -40,7 +41,7 @@ def enable_thin_mode() -> None:
             c64.poke(C64Mem.FRAME_COLOR_D020, Color.BLACK)
             sleep(1)
         
-            drawer.get_active_app().on_show()  # TODO this assumes app is started already
+    drawer.get_active_app().on_show()  # TODO this assumes app is started already
     thin_mode = True
 
 
@@ -117,14 +118,16 @@ def main_loop():
         try:
             dispatch_key(wait_key())
         except Exception as e:
-            print(f"Exception {e}")
+            print(f"Exception: {e}")
+            print(traceback.format_exc())
 
 
 if __name__ == "__main__":
     print("Waiting for C64 to connect...")
     while wait_key() != 0x3d:
         pass
-    print("Connected :-)")
-    drawer.add_app(drawer, avoid_show=True)
+    print("READY.")
+    apps.drawer.Drawer.add_app(drawer)
+    apps.drawer.Drawer.set_active_app(drawer, avoid_show=True)
     main_loop()
     

@@ -27,6 +27,8 @@ class TextScreen():
 
     def put_char(self, char: str, x: int, y: int) -> None:
         """Put a character at position x, y."""
+        if x < 0 or x >= self.TEXT_SCREEN_WIDTH or y < 0 or y >= self.TEXT_SCREEN_HEIGHT:
+            return
         self.buffer[y][x].put_char(char)
 
 
