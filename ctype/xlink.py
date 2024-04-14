@@ -39,6 +39,11 @@ xlink_save_fxn = C_libxlink.xlink_save
 xlink_save_fxn.argtypes = [ctypes.c_char, ctypes.c_char, ctypes.c_ushort, ctypes.c_char_p, ctypes.c_uint]
 xlink_save_fxn.restype = ctypes.c_bool
 
+# bool xlink_jump(uchar memory, uchar bank, ushort address)
+xlink_jump_fxn = C_libxlink.xlink_jump
+xlink_jump_fxn.argtypes = [ctypes.c_char, ctypes.c_char, ctypes.c_ushort]
+xlink_jump_fxn.restype = ctypes.c_bool
+
 
 class Xlink():
     def __init__(self) -> None:
@@ -50,7 +55,7 @@ class Xlink():
     def end(self) -> None:
         xlink_end_fxn()
 
-    def receive(self, data:bytes, size: int) -> bool:
+    def receive(self, data: bytes, size: int) -> bool:
         return xlink_receive_fxn(data, size)
 
     def poke(self, memory: int, bank: int, address: int, value: int) -> bool:
@@ -61,3 +66,6 @@ class Xlink():
 
     def save(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
         return xlink_save_fxn(memory, bank, address, bytes(data), size)
+
+    def jump(self, memory: int, bank: int, address: int) -> bool:
+        return xlink_jump_fxn(memory, bank, address)

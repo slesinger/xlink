@@ -181,6 +181,7 @@ done:
 }
 	
 .macro screenOff() {
+jmp skip  // not blanking screen while trasfering data is an Experiment
 	bit mem
 	bmi skip
 	lda #$0b
@@ -189,6 +190,7 @@ skip:
 }
 
 .macro screenOn() {
+jmp skip
 	bit mem
 	bmi skip
 	lda #$1b

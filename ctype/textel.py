@@ -1,6 +1,5 @@
 from c64_color import C64Color as Color
-import cbmcodecs2
-#         data64 = data.encode(encoding='petscii_c64en_lc')  # TODO get right encoding
+import cbmcodecs2  # this import is needed for the screencode PETSCII encoding
 
 class Textel():
     """Textel is a textual representation of one position in text screen. It is a character and a color and all attributes."""
@@ -16,10 +15,10 @@ class Textel():
         
     def get_petscii(self) -> int:
         """Return the PETSCII code for the character."""
-        return ord(self._character)  # TODO convert
+        return ord(self._character.encode(encoding='screencode_c64_lc'))
     
     
-    def get_ASCII(self) -> str:
+    def get_ascii(self) -> str:
         """Return the character in ASCII."""
         return self._character
     

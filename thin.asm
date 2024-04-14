@@ -3,29 +3,25 @@
 .import source "server_h.asm"
 
 // .pc = cmdLineVars.get("pc").asNumber()
-        *= $0801 "Basic Upstart"
-        BasicUpstart(startm)    // 10 sys$0810
+	*= $0801 "Basic Upstart"
+	BasicUpstart(startm)    // 10 sys$0810
 
-        *= $0810 "Program"
+	*= $0810 "Jump table"
+	jmp install_thin_mode   // $0810
+	jmp install_basic_mode  // $0813
+        // *= $0810 "Program"
 startm:
-
-
 	lda #$03  // no key pressed keyboard matrix code
  	sta $2a
 
-	// :output()  // ff>dd03
 	lda #$ff  // set CIA2 port B to output
 	sta $dd03
 
 	lda $dd02 // set CIA2 Port A bit 2 to output 
 	ora #$04  // this is our handshaking line to the PC
 	sta $dd02
-// testloop:
-	lda #23
+	lda #$3d
 	:write()
-	lda #24
-	:write()
-// 	jmp testloop
 
 //------------------------------------------------------------------------------
 
@@ -52,9 +48,34 @@ install: {
 	sta $03e9
 	lda #>install
 	sta $03ea
-	
-	rts
+
+	rts  // return to basic initially
 }
+
+install_thin_mode:
+	lda #$0c
+	sta $d020
+	lda #$17
+	sta $d018
+thin_mode_loop:
+	jmp thin_mode_loop
+
+
+.const BASIC_warm_start = $a483
+install_basic_mode:  // call from thin mode when thin app drawer sends signal to execute this logic
+	lda #$15
+	sta $d018
+	lda #<BASIC_warm_start
+	sta $0302
+	lda #>BASIC_warm_start
+	sta $0303
+	lda #$18
+	sta irq.mode_select
+	lda #$00
+	sta $c6  // clear keyboard buffer
+	lda #$0e
+	sta $d020
+	jmp BASIC_warm_start
 
 //------------------------------------------------------------------------------
 	
@@ -118,38 +139,81 @@ cpy #Command.poke
         
 !next:	
 done:
-	jsr read_key
-	jsr jiffy
-	jmp sysirq+3
-}
-
-//------------------------------------------------------------------------------
-
-read_key: {
+// read key
+	lda #$0f   // initialize key to no key changed
+	sta $02
+	
 	lda $2a    // previous key
 	eor $cb    // current key
-	beq no_change_key
+	beq no_key_change
+	lda $cb    // previous key = current key
+	sta $2a
+	sta $02    // as key changed, it needs to be written to thin if enabled
 
+no_key_change: // check status of control, commodore and shift keys
+	lda $52    // previous shift keys
+	eor $028D  // current shift keys
+	beq no_shift_key_change
+	lda $028D  // previous shift keys = current shift keys
+	sta $52
+	nop // TODO merge key and shift key somehow (and joys)
+no_shift_key_change:  
+
+	// branch for BASIC or thin mode?
+mode_select:
+	clc  // clc($18): BASIC,     sec($38): thin
+	bcs thin_mode  // Branch if Carry is Set
+basic_mode:  // check for C=+left arrow and exit IRQ
+	// check if C=+left arrow is pressed
+	lda $02  // contains blended key and shifts value, see. TODO
+	cmp #$39 // TODO left arrow  (add C= also)
+	bne basic_fin   // no change change to thin mode, exit
+	// change mode from basic to thin
+	lda #<thin_mode_loop
+	sta $0302
+	lda #>thin_mode_loop
+	sta $0303
+	lda #$38
+	sta mode_select
+	lda $02
+	jsr write_to_thin
+	lda #$00
+	sta $d020  // indicate change start, it needs to complete by thin.py to execute JMP $thin_mode_loop
+	// TODO all the below is here as a try to prevent <left arrow> to appear on screen but no luck. It is due
+	// to the fact that at the moment of pressing the eft arrow key, processor is still looping in KERNAL wait key
+	// routine and it is not possible to prevent the key to be written to screen.
+	lda #$00
+	sta $c6  // clear keyboard buffer
+	jsr $ffea  // increment the real time clock
+	lda $dc0d  // read VIA 1 ICR, clear the timer interrupt flag
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
+
+basic_fin:
+	jmp sysirq
+
+thin_mode:  // send key to thin
+	lda $02
+	cmp #$0f  // no key pressed
+	beq thin_fin
+	jsr write_to_thin
+thin_fin:
+	jmp sysirq
+}
+
+
+write_to_thin:
 	lda #$ff   // set CIA2 port B to output
 	sta $dd03
-	
-	lda $cb
-	sta $2a
-// x:	sta $0400  // do something with the key change
-// 	inc x+1
+	lda $02
 	:write()
 	lda #$00   // set CIA2 port B to input
 	sta $dd03
-
-no_change_key:  // check status of control, commodore and shift keys
-	// lda $52    // previous key
-	// eor $028D  // current key
-	// beq read_key_end
-	// lda $028D
-	// sta $52
-read_key_end:
 	rts
-}
 
 load: {
 	jsr readHeader
@@ -379,7 +443,7 @@ run: {
 	jsr restxtpt
 
 	lda #$00            // flag program mode
-	sta mode
+	sta mode  // TODO co je to tohle?
 	
 	jmp warmst
 }
