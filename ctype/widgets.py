@@ -49,17 +49,19 @@ class HotKey(BaseWidget):
         self.callback = callback
 
     def on_key(self, key: int):
-        if key == self.key:
+        if key == self.key:  # Global HotKey has higher priority
             self.callback()
+            return
             
 
 class Button(BaseWidget):
     """A simple button"""
-    def __init__(self, text: str, x: int, y: int, callback):
+    def __init__(self, text: str, x: int, y: int, callback, focused=False):
         super().__init__(x, y, len(text), 1)
         self.text = text
         self.callback = callback
-        self.focused = False
+        self.focused = focused
+        self.focusable = True  # TODO if focused True, make sure all other focusables are False
 
     def on_show(self, app):
         if self.focused:
@@ -67,15 +69,16 @@ class Button(BaseWidget):
         else:
             app.print_at(f"[{self.text}]", self.x, self.y)
 
-    def on_key(self, key: int):
+    def on_key(self, key: int) -> bool:
+        """Return True if the key was handled"""
         if key == C64Keys.RETURN and self.focused:
             self.callback()
+            return True
+        elif key == C64Keys.UP_ARROW:
+            assert self.parent is not None
+            if self.parent.focus_next_widget():
+                # redraw the screen
+                self.parent.screen_tainted = True
+                return True
+        return False
 
-    def on_mouse(self, x: int, y: int):
-        if self.x <= x < self.x + self.width and self.y <= y < self.y + self.height:
-            self.focused = True
-        else:
-            self.focused = False
-
-    def on_click(self):
-        self.callback()

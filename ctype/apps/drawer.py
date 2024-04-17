@@ -1,6 +1,6 @@
 from base_app import BaseApp
 from c64_keys import C64Keys
-from widgets import HotKey, Label
+from widgets import HotKey, Label, Button
 
 class Drawer(BaseApp):
     name = "Drawer"  # TODO tohle nebude fungovat
@@ -39,14 +39,14 @@ class Drawer(BaseApp):
 
     def on_start(self) -> None:
         """Define whole layout"""
-        l_hotkey = HotKey(C64Keys.L, callback=self.exec_list)
-        r_hotkey = HotKey(C64Keys.R, callback=self.exec_random)
         self.add_widget(Label("HONDANI", 17, 5))
         self.add_widget(Label("Press L to list a directory", 6, 10))
         self.add_widget(Label("Press R to show random number", 6, 11))        
-        self.add_widget(l_hotkey)
-        self.add_widget(r_hotkey)
-
+        self.add_widget(HotKey(C64Keys.L, callback=self.exec_list))
+        self.add_widget(HotKey(C64Keys.R, callback=self.exec_random))
+        self.add_widget(Button("List", 6, 12, callback=self.exec_list, focused=True))
+        self.add_widget(Button("Random", 6, 13, callback=self.exec_random))
+        self.add_widget(Button("Random 2", 6, 14, callback=self.exec_random))
 
 
     def exec_list(self):

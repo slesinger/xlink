@@ -11,6 +11,7 @@ class XthinToolkit():
 
     BANK = 0x00
     screen: TextScreen
+    screen_tainted: bool = False  # Need to redraw the screen
     cursor: Cursor
   
     def __init__(self):
@@ -21,13 +22,14 @@ class XthinToolkit():
 
     def draw(self) -> None:
         """Figure out screen changes and push them to xlink"""
+        self.screen_tainted = False
         changes:list[GetChangesReturn] = self.screen.get_changes()
         for change in changes:
             rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
             sleep(.5)  # next fails without this
             # rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
             # sleep(.1)  # next fails without this
-            print(f"screen pushed {rc1} {rc1}")
+            print(f"screen pushed {rc1}")
             # self.draw_tty()#what=change.char)
             
             

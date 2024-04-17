@@ -8,12 +8,11 @@ class RandomApp(BaseApp):
 
     def on_start(self) -> None:
         """Define whole layout"""
-        x_hotkey = HotKey(C64Keys.X, callback=self.exec_quit)
         self.add_widget(Label("Random number", 17, 5))
         self.random_label = Label("0.000", 17, 6)
         self.add_widget(self.random_label)
         self.add_widget(Label("Press X to quit", 6, 11))        
-        self.add_widget(x_hotkey)
+        self.add_widget(HotKey(C64Keys.X, callback=self.exec_quit))
 
     def on_show(self):
         self.random_label.set_text(str(random.random())[0:5])

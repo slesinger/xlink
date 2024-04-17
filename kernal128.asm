@@ -661,5 +661,4 @@ eof:
 .eval command = command + patch(disableTapeSave, disableTapeSave.eof)            
 .eval command = command + patch(tapeIODisabledMessage, tapeIODisabledMessage.eof)  
 
-.print command
 //------------------------------------------------------------------------------			

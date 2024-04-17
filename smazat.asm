@@ -5,7 +5,6 @@
 startm:
 jmp startm
     // install thin loop
-.break
 	lda #<thin_loop_start
 	sta $0302
 	lda #>thin_loop_start

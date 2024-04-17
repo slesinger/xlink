@@ -657,8 +657,4 @@ eof:
 .eval command = command + patch(memoryCheck, memoryCheck.eof)
 .eval command = command + patch(Server, Server.eof)        
 
-.print command
 //------------------------------------------------------------------------------			
-.print ""
-.print "free: 0x" + toHexString(irq.eof) + "-0xf5ab" + ": " + toIntString($f5ab-irq.eof) + " bytes"
-.print "free: 0x" + toHexString(memoryCheck.eof) + "-0xfc92" + " " + toIntString($fc92-memoryCheck.eof) + " bytes"
