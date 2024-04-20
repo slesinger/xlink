@@ -145,19 +145,35 @@ done:
 	
 	lda $2a    // previous key
 	eor $cb    // current key
-	beq no_key_change
+	and #%01111111
+	beq thin_fin
 	lda $cb    // previous key = current key
 	sta $2a
 	sta $02    // as key changed, it needs to be written to thin if enabled
+	cmp #$40   // current key = no key pressed regardless modifiers
+	beq no_modifiers
+	// merge key and shift key somehow (and joys)
+	// bit 0 shift,  bit 1 C=,  bit 2 CTRL
+	lda $028D
+	and #%00000001  // shift?
+	beq no_shift
+	lda $02
+	ora #%11000000  // set shift key
+	sta $02
+	jmp no_modifiers
+no_shift:
+	lda $028D
+	and #%00000010  // C=?
+	beq no_commodore
+	lda $02
+	ora #%10000000  // set C= key
+	and #%10111111  // set C= key
+	sta $02
+no_commodore:
+no_modifiers:
+// no_key_change:
 
-no_key_change: // check status of control, commodore and shift keys
-	lda $52    // previous shift keys
-	eor $028D  // current shift keys
-	beq no_shift_key_change
-	lda $028D  // previous shift keys = current shift keys
-	sta $52
-	nop // TODO merge key and shift key somehow (and joys)
-no_shift_key_change:  
+// no_shift_key_change:  
 
 	// branch for BASIC or thin mode?
 mode_select:
@@ -166,7 +182,7 @@ mode_select:
 basic_mode:  // check for C=+left arrow and exit IRQ
 	// check if C=+left arrow is pressed
 	lda $02  // contains blended key and shifts value, see. TODO
-	cmp #$39 // TODO left arrow  (add C= also)
+	cmp #$b9 // C= + left arrow
 	bne basic_fin   // no change change to thin mode, exit
 	// change mode from basic to thin
 	lda #<thin_mode_loop

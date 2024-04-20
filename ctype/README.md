@@ -1,3 +1,12 @@
+Nefunkcni klavesy:
+netestovano left arrow
+ctrl
+C=
+shift
+INS
+DEL - asi kvuli asm
+
+
 # Ideation
 
 ## Immediate Goals
@@ -23,6 +32,10 @@ design drawer app
 ```text
 ￩ enable thin client
 ```
+
+## Mapping
+c64 keyboard codes to unicode key codes
+unicode to screencodes incl reverse
 
 ## Widgets
 

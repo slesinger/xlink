@@ -1,5 +1,5 @@
 from base_widget import BaseWidget
-from c64_keys import C64Keys
+from c64_keys import C64Keys, C64Key
 
 class VoidWidget(BaseWidget):
     """A widget that does nothing"""
@@ -43,7 +43,7 @@ class Label(BaseWidget):
 
 class HotKey(BaseWidget):
     """A hotkey that does not have any visual representation, but triggers a callback when pressed"""
-    def __init__(self, key: int, callback):
+    def __init__(self, key: C64Key, callback):
         super().__init__(0, 0, 0, 0)
         self.key = key
         self.callback = callback
@@ -65,7 +65,7 @@ class Button(BaseWidget):
 
     def on_show(self, app):
         if self.focused:
-            app.print_at(f"<{self.text}>", self.x, self.y)
+            app.print_at(f"\u2713{self.text}\u2190", self.x, self.y)
         else:
             app.print_at(f"[{self.text}]", self.x, self.y)
 
@@ -82,3 +82,41 @@ class Button(BaseWidget):
                 return True
         return False
 
+
+class Input(BaseWidget):
+    """A simple input field"""
+    value: str = ""
+    empty_char: str = "\u2581"
+    def __init__(self, x: int, y: int, width: int, text=""):
+        super().__init__(x, y, width, 1)
+        self.text = text
+        self.focusable = True
+
+    def render(self):
+        return self.text + self.empty_char * (self.width - len(self.text)) 
+
+    def on_show(self, app):
+        app.print_at(self.render(), self.x, self.y)
+        # TODO make update color highlighted
+        # TODO if focused make sure cursor is moved here
+
+    def on_key(self, key: int) -> bool:
+        """Return True if the key was handled"""
+        if key == C64Keys.RETURN:
+            assert self.parent is not None
+            if self.parent.focus_next_widget():
+                # redraw the screen
+                self.parent.screen_tainted = True
+                return True
+        elif key == C64Keys.INS_DEL:
+            self.text = self.text[:-1]
+            self.parent.screen_tainted = True
+            return True
+        elif key >= 8 and key <= 50:  # TODO key codes must be encoded to ASCII first
+            self.text += chr(key)
+            self.parent.screen_tainted = True
+            return True
+        return False
+
+    def get_text(self):
+        return self.text

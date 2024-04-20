@@ -39,7 +39,11 @@ class TextScreen():
         for y in range(self.TEXT_SCREEN_HEIGHT):
             for x in range(self.TEXT_SCREEN_WIDTH):
                 if True or self.buffer[y][x].tainted:  # TODO remove True
-                    char.append(self.buffer[y][x].get_petscii())
+                    try:
+                        char.append(self.buffer[y][x].get_petscii())
+                    except:
+                        print(f"error at {x}, {y}   {self.buffer[y][x].get_ascii()}")
+                        char.append(0x0)
                     color.append(self.buffer[y][x].color)
         # TODO create RLE protocol for changes
         ch = GetChangesReturn(mem_pos=0, length=len(char), char=bytes(char), color=bytes(color))

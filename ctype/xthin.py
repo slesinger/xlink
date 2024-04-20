@@ -17,7 +17,7 @@ backup_screen: bytes = b'\1' * TextScreen.TEXT_SCREEN_SIZE  # TODO do also for c
 
 
 def on_key(key: int) -> None:
-    if key == C64Keys.LEFT_ARROW:  # left arrow for exiting thin mode
+    if key == C64Keys.C_LEFT_ARROW:  # C= + left arrow for exiting thin mode
         print("exit thin mode requested")
         disable_thin_mode()
         return
@@ -107,7 +107,7 @@ def dispatch_key(key: int):
             return
 
     if thin_mode == False:
-        if key == C64Keys.LEFT_ARROW:  # left arrow enter thin mode
+        if key == C64Keys.C_LEFT_ARROW:  # left arrow enter thin mode
             enable_thin_mode()
             return
     else:
