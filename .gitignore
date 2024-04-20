@@ -1,4 +1,3 @@
-xlink
 *.so
 *.dylib
 *.prg
@@ -33,3 +32,6 @@ Makefile.private
 libusb-1.0.26-binaries*
 .source.txt
 .vscode/
+**/__pycache__
+xlink/ctype/__pycache__
+xlink

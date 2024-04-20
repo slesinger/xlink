@@ -87,9 +87,10 @@ class Input(BaseWidget):
     """A simple input field"""
     value: str = ""
     empty_char: str = "\u2581"
-    def __init__(self, x: int, y: int, width: int, text=""):
+    def __init__(self, x: int, y: int, width: int, text="", focused=False):
         super().__init__(x, y, width, 1)
         self.text = text
+        self.focused = focused
         self.focusable = True
 
     def render(self):
@@ -102,18 +103,19 @@ class Input(BaseWidget):
 
     def on_key(self, key: int) -> bool:
         """Return True if the key was handled"""
+        c64k = C64Keys.get_key_by_idx(key)
         if key == C64Keys.RETURN:
             assert self.parent is not None
             if self.parent.focus_next_widget():
                 # redraw the screen
                 self.parent.screen_tainted = True
                 return True
-        elif key == C64Keys.INS_DEL:
+        elif key == C64Keys.DEL:
             self.text = self.text[:-1]
             self.parent.screen_tainted = True
             return True
-        elif key >= 8 and key <= 50:  # TODO key codes must be encoded to ASCII first
-            self.text += chr(key)
+        elif c64k.is_printable():  # TODO key codes must be encoded to ASCII first
+            self.text += c64k.utf()
             self.parent.screen_tainted = True
             return True
         return False

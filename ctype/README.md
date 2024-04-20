@@ -1,18 +1,13 @@
-Nefunkcni klavesy:
-netestovano left arrow
-ctrl
-C=
-shift
-INS
-DEL - asi kvuli asm
-
-
 # Ideation
 
 ## Immediate Goals
+zprovoznit barevny buffer
+partial screen update changes
+Renderovat Button a BigButton, viz https://petscii.krissz.hu
+map CTRL like TAB? and SH_CTRL as SHIFT_TAB?
+mapovat joystick, nevesel by se do undefined vcetne modifieru? Pak by se nachal udelat CTRL jako modifier 01
 mapping function keyboard codes > ascii  https://www.c64-wiki.com/wiki/Keyboard_code
 mapping ascii to screen codes  https://sta.c64.org/cbm64scr.html
-screen writing functions
 cursor set
 input widet
 screen scroll
@@ -21,6 +16,8 @@ design drawer app
 
 ## High Level Goals
 
+- input field na zadani URI
+- nacteni MTextu
 - list server directory
 - search the web
 - talk to AI

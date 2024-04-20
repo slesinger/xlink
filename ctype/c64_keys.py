@@ -8,6 +8,7 @@ class C64Key():
         self.xthin_keycode:int = xthin_keycode
         self.utfval:str = utf
         self.name:str = name if name else utf
+        self.printable:bool = printable
         
     def __str__(self) -> str:
         return self.name
@@ -15,6 +16,9 @@ class C64Key():
     def __eq__(self, __value: int) -> bool:
         assert isinstance(__value, int)
         return self.xthin_keycode == __value
+    
+    def is_printable(self) -> bool:
+        return self.printable
     
     def utf(self) -> str:
         return self.utfval
@@ -30,14 +34,14 @@ class C64Keys():
         print(f"ERROR: Key not found: {idx}")
         return C64Keys.NO_KEY
     
-    DEL = C64Key(0x00, u"\u001b[3~", "DEL")
-    RETURN = C64Key(0x01, u"\u000a", "RETURN")
-    CRSR_RIGHT = C64Key(0x02, u"\u001b[1D", "CRSR_RIGHT")
-    F7 = C64Key(0x03, u"\u001b[18~", "F7")
-    F1 = C64Key(0x04, u"\u001b[11~", "F1")
-    F3 = C64Key(0x05, u"\u001b[13~", "F3")
-    F5 = C64Key(0x06, u"\u001b[15~", "F5")
-    CRSR_DOWN = C64Key(0x07, u"\u001b[1B", "CRSR_DOWN")
+    DEL = C64Key(0x00, u"\u001b[3~", "DEL", printable=False)
+    RETURN = C64Key(0x01, u"\u000a", "RETURN", printable=False)
+    CRSR_RIGHT = C64Key(0x02, u"\u001b[1D", "CRSR_RIGHT", printable=False)
+    F7 = C64Key(0x03, u"\u001b[18~", "F7", printable=False)
+    F1 = C64Key(0x04, u"\u001b[11~", "F1", printable=False)
+    F3 = C64Key(0x05, u"\u001b[13~", "F3", printable=False)
+    F5 = C64Key(0x06, u"\u001b[15~", "F5", printable=False)
+    CRSR_DOWN = C64Key(0x07, u"\u001b[1B", "CRSR_DOWN", printable=False)
     THREE = C64Key(0x08, "3")
     w = C64Key(0x09, "w")
     a = C64Key(0x0a, "a")
@@ -45,7 +49,7 @@ class C64Keys():
     z = C64Key(0x0c, "z")
     s = C64Key(0x0d, "s")
     e = C64Key(0x0e, "e")
-    UNKNOWN1 = C64Key(0x0f, "???")
+    UNKNOWN1 = C64Key(0x0f, "???", printable=False)
     FIVE = C64Key(0x10, "5")
     r = C64Key(0x11, "r")
     d = C64Key(0x12, "d")
@@ -81,22 +85,22 @@ class C64Keys():
     POUND = C64Key(0x30, "£", "POUND")
     ASTERISK = C64Key(0x31, "*", "ASTERISK")
     SEMICOLON = C64Key(0x32, ";", "SEMICOLON")
-    HOME = C64Key(0x33, u"\u001b[1~", "HOME")
-    UNKNOWN2 = C64Key(0x34, "????")
+    HOME = C64Key(0x33, u"\u001b[1~", "HOME", printable=False)
+    UNKNOWN2 = C64Key(0x34, "????", printable=False)
     EQUALS = C64Key(0x35, "=", "EQUALS")
-    UP_ARROW = C64Key(0x36, "↑", "UP_ARROW")
+    UP_ARROW = C64Key(0x36, "↑", "UP_ARROW", printable=False)
     SOLIDUS = C64Key(0x37, "/", "SOLIDUS")
     ONE = C64Key(0x38, "1")
-    LEFT_ARROW = C64Key(0x39, "←", "LEFT_ARROW")
-    UNKNOWN3 = C64Key(0x3a, "?????")
+    LEFT_ARROW = C64Key(0x39, "←", "LEFT_ARROW", printable=False)
+    UNKNOWN3 = C64Key(0x3a, "?????", printable=False)
     TWO = C64Key(0x3b, "2")
     SPACE = C64Key(0x3c, " ", "SPACE")
-    UNKNOWN4 = C64Key(0x3d, "??????")
+    UNKNOWN4 = C64Key(0x3d, "??????", printable=False)
     q = C64Key(0x3e, "q")
-    STOP = C64Key(0x3f, u"\u0009", "STOP")
+    STOP = C64Key(0x3f, u"\u0009", "STOP", printable=False)
 
     # NO_KEY with Joystick
-    NO_KEY = C64Key(0x40, "", "NO_KEY")
+    NO_KEY = C64Key(0x40, "", "NO_KEY", printable=False)
     # C64Key(0x41, u"\u000a", "RETURN"),
     # C64Key(0x42, u"\u001b[1D", "CRSR_RIGHT"),
     # C64Key(0x43, u"\u001b[18~", "F7"),
@@ -162,80 +166,80 @@ class C64Keys():
     # C64Key(0x7f, u"\u0009", "STOP"),  # TODO what to do with this?
 
     # # C= with all keys
-    C_DEL = C64Key(0x80, "", "C_DEL")
-    C_RETURN = C64Key(0x81, u"\u000a", "C_RETURN")
-    C_CRSR_RIGHT = C64Key(0x82, u"\u001b[1D", "C_CRSR_RIGHT")
-    C_F7 = C64Key(0x83, u"\u001b[18~", "C_F7")
-    C_F1 = C64Key(0x84, u"\u001b[11~", "C_F1")
-    C_F3 = C64Key(0x85, u"\u001b[13~", "C_F3")
-    C_F5 = C64Key(0x86, u"\u001b[15~", "C_F5")
-    C_CRSR_DOWN = C64Key(0x87, u"\u001b[1B", "C_CRSR_DOWN")
+    C_DEL = C64Key(0x80, "", "C_DEL", printable=False)
+    C_RETURN = C64Key(0x81, u"\u000a", "C_RETURN", printable=False)
+    C_CRSR_RIGHT = C64Key(0x82, u"\u001b[1D", "C_CRSR_RIGHT", printable=False)
+    C_F7 = C64Key(0x83, u"\u001b[18~", "C_F7", printable=False)
+    C_F1 = C64Key(0x84, u"\u001b[11~", "C_F1", printable=False)
+    C_F3 = C64Key(0x85, u"\u001b[13~", "C_F3", printable=False)
+    C_F5 = C64Key(0x86, u"\u001b[15~", "C_F5", printable=False)
+    C_CRSR_DOWN = C64Key(0x87, u"\u001b[1B", "C_CRSR_DOWN", printable=False)
     C_THREE = C64Key(0x88, u"\001b[31m", "C_3")
-    C_W = C64Key(0x89, ".", "C_w")
-    C_A = C64Key(0x8a, ".", "C_a")
+    C_W = C64Key(0x89, u"\u2524", "C_w")
+    C_A = C64Key(0x8a, u"\u250C", "C_a")
     C_FOUR = C64Key(0x8b, u"\001b[36m", "C_4")
-    C_Z = C64Key(0x8c, ".", "C_z")
-    C_S = C64Key(0x8d, ".", "C_s")
-    C_E = C64Key(0x8e, ".", "C_e")
+    C_Z = C64Key(0x8c, u"\u2514", "C_z")
+    C_S = C64Key(0x8d, u"\u2510", "C_s")
+    C_E = C64Key(0x8e, u"\u2534", "C_e")
     C_UNKNOWN = C64Key(0x8f, "???")
     C_FIVE = C64Key(0x90, u"\001b[35m", "C_5")
-    C_R = C64Key(0x91, ".", "C_r")
-    C_D = C64Key(0x92, ".", "C_d")
+    C_R = C64Key(0x91, u"\u252C", "C_r")
+    C_D = C64Key(0x92, u"\u2597", "C_d")
     C_SIX = C64Key(0x93, u"\001b[32m", "C_6")
-    C_C = C64Key(0x94, ".", "C_c")
-    C_F = C64Key(0x95, ".", "C_f")
-    C_T = C64Key(0x96, ".", "C_t")
-    C_X = C64Key(0x97, ".", "C_x")
+    C_C = C64Key(0x94, u"\u259D", "C_c")
+    C_F = C64Key(0x95, u"\u2596", "C_f")
+    C_T = C64Key(0x96, u"\u2594", "C_t")
+    C_X = C64Key(0x97, u"\u2518", "C_x")
     C_SEVEN = C64Key(0x98, u"\001b[34m", "C_7")
-    C_Y = C64Key(0x99, ".", "C_y")
-    C_G = C64Key(0x9a, ".", "C_g")
+    C_Y = C64Key(0x99, u"\uF132", "C_y")
+    C_G = C64Key(0x9a, u"\u258F", "C_g")  # According to cbmcodecs2 this is #LEFT ONE EIGHTH BLOCK but it is too thick
     C_EIGHT = C64Key(0x9b, u"\001b[93m", "C_8")
-    C_B = C64Key(0x9c, ".", "C_b")
-    C_H = C64Key(0x9d, ".", "C_h")
-    C_U = C64Key(0x9e, ".", "C_u")
-    C_V = C64Key(0x9f, ".", "C_v")
+    C_B = C64Key(0x9c, u"\u259A", "C_b")
+    C_H = C64Key(0x9d, u"\u258E", "C_h")
+    C_U = C64Key(0x9e, u"\uF133", "C_u")
+    C_V = C64Key(0x9f, u"\u2598", "C_v")
     C_NINE = C64Key(0xa0, u"\001b[7m", "C_9")
-    C_I = C64Key(0xa1, ".", "C_i")
-    C_J = C64Key(0xa2, ".", "C_j")
+    C_I = C64Key(0xa1, u"\u2584", "C_i")
+    C_J = C64Key(0xa2, u"\u258D", "C_j")
     C_ZERO = C64Key(0xa3, u"\001b[27m", "C_0")
-    C_M = C64Key(0xa4, ".", "C_m")
-    C_K = C64Key(0xa5, ".", "C_k")
-    C_O = C64Key(0xa6, ".", "C_o")
-    C_N = C64Key(0xa7, ".", "C_n")
-    C_PLUS = C64Key(0xa8, ".", "C_PLUS")
-    C_P = C64Key(0xa9, ".", "C_p")
-    C_L = C64Key(0xaa, ".", "C_l")
-    C_MINUS = C64Key(0xab, ".", "C_MINUS")
+    C_M = C64Key(0xa4, u"\u2595", "C_m")
+    C_K = C64Key(0xa5, u"\u258C", "C_k")
+    C_O = C64Key(0xa6, u"\u2583", "C_o")
+    C_N = C64Key(0xa7, u"\uF131", "C_n")
+    C_PLUS = C64Key(0xa8, u"\u2592", "C_PLUS")
+    C_P = C64Key(0xa9, u"\u2582", "C_p")
+    C_L = C64Key(0xaa, u"\uF131", "C_l")
+    C_MINUS = C64Key(0xab, u"\uF12E", "C_MINUS")
     C_COMMA = C64Key(0xac, ">", "C_COMMA")
     C_COLON = C64Key(0xad, "[", "C_COLON")
-    C_AT = C64Key(0xae, ".", "C_AT")
-    C_FULL_STOP = C64Key(0xaf, "<", "C_FULL_STOP")
-    C_POUND = C64Key(0xb0, ".", "C_POUND")
-    C_ASTERISK = C64Key(0xb1, ".", "C_ASTERISK")
+    C_AT = C64Key(0xae, u"\u2581", "C_AT")
+    C_FULL_STOP = C64Key(0xaf, "<", "C_FULL_STOP", printable=False)
+    C_POUND = C64Key(0xb0, u"\uF12F", "C_POUND")
+    C_ASTERISK = C64Key(0xb1, u"\uF139", "C_ASTERISK")  # According to cbmcodecs2 this MEDIUM SHADE SLASHED LEFT (CUS) but it should be Right top filled triangle
     C_SEMICOLON = C64Key(0xb2, "]", "C_SEMICOLON")
-    C_HOME = C64Key(0xb3, u"\u001b[1J", "C_HOME")  # Clear from cursor till beginning of screen, see ANSI Erase in Display
-    C_UNKNOWN2 = C64Key(0xb4, "C_????")
+    C_HOME = C64Key(0xb3, u"\u001b[1J", "C_HOME", printable=False)  # Clear from cursor till beginning of screen, see ANSI Erase in Display
+    C_UNKNOWN2 = C64Key(0xb4, "C_????", printable=False)
     C_EQUALS = C64Key(0xb5, "=", "C_EQUALS")
-    C_UP_ARROW = C64Key(0xb6, "↑", "C_UP_ARROW")
+    C_UP_ARROW = C64Key(0xb6, u"\u2592", "C_UP_ARROW", printable=False)  # According to cbmcodecs2 this is the same as C_PLUS
     C_SOLIDUS = C64Key(0xb7, "?", "C_SOLIDUS")
     C_ONE = C64Key(0xb8, u"\001b[30m", "C_1")
     C_LEFT_ARROW = C64Key(0xb9, "←", "C_LEFT_ARROW")
-    C_UNKNOWN3 = C64Key(0xba, "C_?????")
+    C_UNKNOWN3 = C64Key(0xba, "C_?????", printable=False)
     C_TWO = C64Key(0xbb, u"\001b[97m", "C_2")
     C_SPACE = C64Key(0xbc, " ", "C_SPACE")
-    C_UNKNOWN4 = C64Key(0xbd, "C_??????")
-    C_Q = C64Key(0xbe, ".", "C_q")
-    C_STOP = C64Key(0xbf, u"\u001b[Z", "C_STOP")  # TODO what to do with this? LOAD in BASIC
+    C_UNKNOWN4 = C64Key(0xbd, "C_??????", printable=False)
+    C_Q = C64Key(0xbe, u"\u251C", "C_q")
+    C_STOP = C64Key(0xbf, u"\u001b[Z", "C_STOP", printable=False)  # TODO what to do with this? LOAD in BASIC
 
     # Shift with all keys
-    INS = C64Key(0xc0, "\u001b[2~", "INS")
-    SHIFT_RETURN = C64Key(0xc1, u"\u000a", "SHIFT_RETURN")
-    CRSR_LEFT = C64Key(0xc2, u"\u001b[1C", "CRSR_LEFT")  # TODO NO_KEY
-    F8 = C64Key(0xc3, u"\u001b[19~", "F8")
-    F2 = C64Key(0xc4, u"\u001b[12~", "F2")
-    F4 = C64Key(0xc5, u"\u001b[14~", "F4")
-    F6 = C64Key(0xc6, u"\u001b[17~", "F6")
-    CRSR_UP = C64Key(0xc7, u"\u001b[1A", "CRSR_UP")  # TODO NO_KEY
+    INS = C64Key(0xc0, "\u001b[2~", "INS", printable=False)
+    SHIFT_RETURN = C64Key(0xc1, u"\u000a", "SHIFT_RETURN", printable=False)
+    CRSR_LEFT = C64Key(0xc2, u"\u001b[1C", "CRSR_LEFT", printable=False)  # TODO NO_KEY
+    F8 = C64Key(0xc3, u"\u001b[19~", "F8", printable=False)
+    F2 = C64Key(0xc4, u"\u001b[12~", "F2", printable=False)
+    F4 = C64Key(0xc5, u"\u001b[14~", "F4", printable=False)
+    F6 = C64Key(0xc6, u"\u001b[17~", "F6", printable=False)
+    CRSR_UP = C64Key(0xc7, u"\u001b[1A", "CRSR_UP", printable=False)  # TODO NO_KEY
     NUMBER_SIGN = C64Key(0xc8, "#", "NUMBER_SIGN")
     W = C64Key(0xc9, "W")
     A = C64Key(0xca, "A")
@@ -243,7 +247,7 @@ class C64Keys():
     Z = C64Key(0xcc, "Z")
     S = C64Key(0xcd, "S")
     E = C64Key(0xce, "E")
-    UNKNOWN1 = C64Key(0xcf, "???")
+    UNKNOWN1 = C64Key(0xcf, "???", printable=False)
     PERCENT_SIGN = C64Key(0xd0, "%", "PERCENT_SIGN")
     R = C64Key(0xd1, "R")
     D = C64Key(0xd2, "D")
@@ -279,16 +283,16 @@ class C64Keys():
     SHIFT_POUND = C64Key(0xf0, "£", "SHIFT_POUND")
     SHIFT_ASTERISK = C64Key(0xf1, "*", "SHIFT_ASTERISK")
     RIGHT_SQUARE_BRACKET = C64Key(0xf2, "]", "RIGHT_SQUARE_BRACKET")
-    CLR = C64Key(0xf3, u"\u001b[0J", "CLR")  # Clear from cursor till end of screen, see ANSI Erase in Display
-    UNKNOWN2 = C64Key(0xf4, "????")
+    CLR = C64Key(0xf3, u"\u001b[0J", "CLR", printable=False)  # Clear from cursor till end of screen, see ANSI Erase in Display
+    UNKNOWN2 = C64Key(0xf4, "????", printable=False)
     SHIFT_EQUALS = C64Key(0xf5, "=", "SHIFT_EQUALS")
     SHIFT_UP_ARROW = C64Key(0xf6, "↑", "SHIFT_UP_ARROW")
     QUESTION_MARK = C64Key(0xf7, "?", "QUESTION_MARK")
     EXCLAMATION_MARK = C64Key(0xf8, "!", "EXCLAMATION_MARK")
     SHIFT_LEFT_ARROW = C64Key(0xf9, "←", "SHIFT_LEFT_ARROW")
-    UNKNOWN3 = C64Key(0xfa, "?????")
+    UNKNOWN3 = C64Key(0xfa, "?????", printable=False)
     QUOTATION_MARK = C64Key(0xfb, "\"", "QUOTATION_MARK")
     SHIFT_SPACE = C64Key(0xfc, " ", "SHIFT_SPACE", printable=False)
-    UNKNOWN4 = C64Key(0xfd, "??????")
+    UNKNOWN4 = C64Key(0xfd, "??????", printable=False)
     Q = C64Key(0xfe, "Q")
-    RUN = C64Key(0xff, u"\u001b[Z", "RUN")  # TODO what to do with this? LOAD in BASIC
+    RUN = C64Key(0xff, u"\u001b[Z", "RUN", printable=False)  # TODO what to do with this? LOAD in BASIC

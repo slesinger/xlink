@@ -40,14 +40,11 @@ class Drawer(BaseApp):
     def on_start(self) -> None:
         """Define whole layout"""
         self.add_widget(Label("HONDANI", 17, 5))
-        self.add_widget(Label("Press L to list a directory", 6, 10))
-        self.add_widget(Label("Press R to show random number", 6, 11))        
-        self.add_widget(HotKey(C64Keys.l, callback=self.exec_list))
-        self.add_widget(HotKey(C64Keys.r, callback=self.exec_random))
-        self.add_widget(Button("List", 6, 12, callback=self.exec_list, focused=True))
-        self.add_widget(Button("Random", 6, 13, callback=self.exec_random))
-        self.add_widget(Button("Random 2", 6, 14, callback=self.exec_random))
-        self.add_widget(Input(6, 15, 10, text="Medlik"))
+        # self.add_widget(HotKey(C64Keys.l, callback=self.exec_list))
+        # self.add_widget(HotKey(C64Keys.r, callback=self.exec_random))
+        self.add_widget(Button("Random", 6, 10, callback=self.exec_random, focused=True))
+        self.add_widget(Button("File Manager", 6, 11, callback=self.exec_list))
+        self.add_widget(Input(6, 15, 10, text="Medlik", focused=False))
 
 
     def exec_list(self):
