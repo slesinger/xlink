@@ -27,9 +27,9 @@ class XthinToolkit():
         for change in changes:
             rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
             sleep(.5)  # next fails without this
-            # rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
-            # sleep(.1)  # next fails without this
-            print(f"screen pushed {rc1}")
+            rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
+            sleep(.5)  # next fails without this
+            print(f"Pushed screen {rc1}, color {rc2}")
             # self.draw_tty()#what=change.char)
             
             
@@ -49,10 +49,10 @@ class XthinToolkit():
         pass
     
     
-    def print_at(self, text: str, x: int, y: int) -> None:
+    def print_at(self, text: str, x: int, y: int, color=None) -> None:
         """Print at specified position. Line wraps at end of screen. Does not move cursor."""
         for i in range(len(text)):
-            self.screen.put_char(text[i], x + i, y)
+            self.screen.put_char(text[i], x + i, y, color=color)
     
         
     def poke(self, address: int, value: int) -> int:

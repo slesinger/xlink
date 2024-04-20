@@ -1,7 +1,6 @@
 # Ideation
 
 ## Immediate Goals
-zprovoznit barevny buffer
 partial screen update changes
 Renderovat Button a BigButton, viz https://petscii.krissz.hu
 map CTRL like TAB? and SH_CTRL as SHIFT_TAB?
@@ -13,6 +12,7 @@ input widet
 screen scroll
 screen partial updates
 design drawer app
+fix cbmcodecs2, c64keys.py notes: According to ...
 
 ## High Level Goals
 

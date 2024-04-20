@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from textel import Textel
+from c64_color import C64Color as Color
 
 class GetChangesReturn(BaseModel):
     mem_pos: int
@@ -25,11 +26,11 @@ class TextScreen():
         self.buffer = [[Textel() for _ in range(self.TEXT_SCREEN_WIDTH)] for _ in range(self.TEXT_SCREEN_HEIGHT)]
 
 
-    def put_char(self, char: str, x: int, y: int) -> None:
+    def put_char(self, char: str, x: int, y: int, color:Color|None=None) -> None:
         """Put a character at position x, y."""
         if x < 0 or x >= self.TEXT_SCREEN_WIDTH or y < 0 or y >= self.TEXT_SCREEN_HEIGHT:
             return
-        self.buffer[y][x].put_char(char)
+        self.buffer[y][x].put_char(char, color=color)
 
 
     def get_changes(self) -> list[GetChangesReturn]:
@@ -44,7 +45,7 @@ class TextScreen():
                     except:
                         print(f"error at {x}, {y}   {self.buffer[y][x].get_ascii()}")
                         char.append(0x0)
-                    color.append(self.buffer[y][x].color)
+                    color.append(self.buffer[y][x].get_color_num())
         # TODO create RLE protocol for changes
         ch = GetChangesReturn(mem_pos=0, length=len(char), char=bytes(char), color=bytes(color))
         return [ch]

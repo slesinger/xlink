@@ -1,5 +1,7 @@
+from slate import color
 from base_widget import BaseWidget
 from c64_keys import C64Keys, C64Key
+from c64_color import C64Color as Color
 
 class VoidWidget(BaseWidget):
     """A widget that does nothing"""
@@ -29,12 +31,13 @@ class VoidWidget(BaseWidget):
 
 class Label(BaseWidget):
     """A simple label"""
-    def __init__(self, text: str, x: int, y: int):
+    def __init__(self, text: str, x: int, y: int, color:Color|None=None):
         super().__init__(x, y, len(text), 1)
         self.text = text
+        self.color = color
 
     def on_show(self, app):
-        app.print_at(self.text, self.x, self.y)
+        app.print_at(self.text, self.x, self.y, color=self.color)
 
     def set_text(self, text: str):
         self.text = text
