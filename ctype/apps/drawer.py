@@ -43,7 +43,7 @@ class Drawer(BaseApp):
         self.add_widget(Label("HONDANI", 17, 5, color=Color.YELLOW))
         self.add_widget(HotKey(C64Keys.t, callback=self.test_rle))
         self.add_widget(HotKey(C64Keys.l, callback=self.exec_list))
-        # self.add_widget(HotKey(C64Keys.r, callback=self.exec_random))
+        self.add_widget(HotKey(C64Keys.r, callback=self.exec_random))
         self.add_widget(Button("Random", 6, 10, callback=self.exec_random, focused=True))
         self.add_widget(Button("File Manager", 6, 11, callback=self.exec_list))
         self.add_widget(Input(6, 15, 10, text="Medlik", focused=False))

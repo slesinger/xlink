@@ -35,7 +35,7 @@ def enable_thin_mode() -> None:
     rc = False
     while rc == False:
         rc = c64.save(C64Mem.ZP01_MEM, TextScreen.address, backup_screen, len(backup_screen))  # save screen memory (40x25, 1 byte per character, 1 byte per color)
-        sleep(.1)  # next fails without this
+        sleep(.2)  # next fails without this
         print(f"saving screen {rc}")
         if rc == False:
             sleep(1)

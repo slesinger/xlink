@@ -12,7 +12,7 @@ class Textel():
     def __init__(self) -> None:
         self._character = " "
         self._color = Color.LIGHT_BLUE
-        self.tainted = False
+        self.tainted = True
         
         
     def get_petscii(self) -> int:
@@ -28,10 +28,13 @@ class Textel():
     
     def put_char(self, char: str, color:Color|None=Color.LIGHT_BLUE) -> None:
         """Put a character into the textel."""
+        if char == self._character and color == self._color:
+            return
         self._character = char
         self._color = color if color is not None else Color.LIGHT_BLUE
         self.tainted = True
-        
+
+
     def get_color_num(self) -> int:
         """Return the color of the textel as a number."""
         return self._color.value

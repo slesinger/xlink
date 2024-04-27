@@ -26,6 +26,19 @@ class TextScreen():
     def clear(self) -> None:
         self.buffer = [[Textel() for _ in range(self.TEXT_SCREEN_WIDTH)] for _ in range(self.TEXT_SCREEN_HEIGHT)]
 
+    def is_tainted(self) -> bool:
+        for y in range(self.TEXT_SCREEN_HEIGHT):
+            for x in range(self.TEXT_SCREEN_WIDTH):
+                if self.buffer[y][x].tainted:
+                    return True
+        return False
+    
+
+    def untaint(self) -> None:
+        for y in range(self.TEXT_SCREEN_HEIGHT):
+            for x in range(self.TEXT_SCREEN_WIDTH):
+                self.buffer[y][x].tainted = False
+
 
     def put_char(self, char: str, x: int, y: int, color:Color|None=None) -> None:
         """Put a character at position x, y."""
@@ -34,24 +47,7 @@ class TextScreen():
         self.buffer[y][x].put_char(char, color=color)
 
 
-    def get_changes_OLD(self) -> list[GetChangesReturn]:
-        """Return a list of Textel objects that have changed since last draw."""
-        char = bytearray()
-        color = bytearray()
-        for y in range(self.TEXT_SCREEN_HEIGHT):
-            for x in range(self.TEXT_SCREEN_WIDTH):
-                if True or self.buffer[y][x].tainted:  # TODO remove True
-                    try:
-                        char.append(self.buffer[y][x].get_petscii())
-                    except:
-                        print(f"error at {x}, {y}   {self.buffer[y][x].get_ascii()}")
-                        char.append(0x0)
-                    color.append(self.buffer[y][x].get_color_num())
-        ch = GetChangesReturn(mem_pos=0, length=len(char), char=bytes(char), color=bytes(color))
-        return [ch]
-    
-
-    def get_changes(self) -> bytearray:
+    def get_changes(self) -> bytearray|None:
         """Return a list of Textel objects that have changed since last draw.
         Notes to figure out approach:
         - Copy bytes is benefit when 3 or more bytes are the same. Do not use it for less than 3 bytes.
@@ -86,18 +82,20 @@ class TextScreen():
         char = bytearray()
         color = bytearray()
         # Rearrange 2D buffer to 1D list
-        buffer1d:list[Textel] = list(chain.from_iterable(self.buffer)) + 2 * [Textel()]  # add 2 extra cells to avoid out of range
-        assert len(buffer1d) == self.TEXT_SCREEN_SIZE + 2
+        buffer1d:list[Textel] = list(chain.from_iterable(self.buffer)) + 3 * [Textel()]  # add 2 extra cells to avoid out of range
+        assert len(buffer1d) == self.TEXT_SCREEN_SIZE + 3
         part_started = False  # if false, we are searching for start of a part; if true, we are searching for end of a part
         current_part = {}  # start (inclusive), end (inclusive), type
         parts = []
-        for i in range(self.TEXT_SCREEN_SIZE):
+        for i in range(self.TEXT_SCREEN_SIZE+1):
             if part_started == False and buffer1d[i].tainted:
                 current_part["start"] = i
                 part_started = True
+                print(f"Part started at {i}")
                 continue
-            if part_started == True and buffer1d[i].tainted == False and buffer1d[i+1].tainted == False and buffer1d[i+2].tainted == False:
+            if (part_started == True and buffer1d[i].tainted == False and buffer1d[i+1].tainted == False and buffer1d[i+2].tainted == False) or i == self.TEXT_SCREEN_SIZE:
                 current_part["end"] = i-1
+                print(f"Part ended at {i-1}")
                 part_started = False
                 # Add part to list
                 parts.append(current_part)
@@ -108,19 +106,45 @@ class TextScreen():
         partlets = []
         for part in parts:
             partlet = {}
-            partlet["start"] = part["start"]
-            partlet["end"] = part["end"]
-            partlet["type"] = "receive"
-            partlets.append(partlet)
-        assert len(partlets) > 0
+            length = part["end"] - part["start"] + 1
+            if length > 64:  # split into partlets of n max 64 as copy/recv cannot handle more in one command
+                start = part["start"]
+                while length > 0:
+                    partlet = {}
+                    partlet["start"] = start
+                    partlet["end"] = start + min(64, length) - 1
+                    partlet["type"] = "receive"
+                    partlets.append(partlet)
+                    start += 64
+                    length -= 64
+            else:
+                partlet["start"] = part["start"]
+                partlet["end"] = part["end"]
+                partlet["type"] = "receive"
+                partlets.append(partlet)
+
+        if len(partlets) == 0:
+            return None
 
         # Create RLE data
+
+        # clear screen
+        # rle_data = bytearray(b'\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x27\x20\xc0\x00\x04')
+
         rle_data = bytearray()
         # set start address
-        if partlets[0]["start"] != 0:
-            rle_data.extend(b'\xc0')
-            rle_data.extend((0x0400 + partlets[0]["start"]).to_bytes(2, byteorder='little'))
+        current_position = 0  # address 0x0400
         for partlet in partlets:
+            # set position
+            skip_len = partlet["start"] - current_position
+            assert skip_len >= 0 and skip_len <= self.TEXT_SCREEN_SIZE
+            if skip_len > 64:
+                rle_data.extend(b'\xc0')
+                rle_data.extend((self.address + partlet["start"]).to_bytes(2, byteorder='little'))
+            elif skip_len > 0:
+                rle_data.extend((128 + skip_len).to_bytes(1, byteorder='little'))  # 128 is skip command
+            current_position = partlet ["end"] + 1
+
             if partlet["type"] == "copy":
                 pass
             elif partlet["type"] == "receive":

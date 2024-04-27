@@ -11,31 +11,27 @@ class XthinToolkit():
 
     BANK = 0x00
     screen: TextScreen
-    screen_tainted: bool = False  # Need to redraw the screen
+    must_rerender: bool
     cursor: Cursor
   
     def __init__(self):
         self.screen = TextScreen()
         self.screen.clear()
         self.cursor = Cursor()
+        self.must_rerender = True
 
 
-    def draw(self) -> None:
+    def draw_to_c64(self) -> None:
         """Figure out screen changes and push them to xlink"""
-        self.screen_tainted = False
-        # changes:list[GetChangesReturn] = self.screen.get_changes()
-        # for change in changes:
-        #     rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
-        #     sleep(.5)  # next fails without this
-        #     rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
-        #     sleep(.5)  # next fails without this
-        #     print(f"Pushed screen {rc1}, color {rc2}")
-        #     # self.draw_tty()#what=change.char)
             
+        if not self.screen.is_tainted():
+            return
         rle_data = self.screen.get_changes()
-        rc1 = xlink.load_rle(C64Mem.ZP01_MEM, self.BANK, TextScreen.address, bytes(rle_data), len(rle_data))
-        sleep(.5)  # next fails without this
-        print(f"Pushed screen {rc1}, color {'rc2'}")
+        if rle_data:
+            rc1 = xlink.load_rle(C64Mem.ZP01_MEM, self.BANK, TextScreen.address, bytes(rle_data), len(rle_data))
+            self.screen.untaint()  # set all Textels on screen  tained = False
+            sleep(.5)  # next fails without this
+            print(f"Pushed screen {rc1}, color {'rc2'}")
 
 
     def draw_tty(self, what:bytes=b'') -> None:
@@ -63,6 +59,7 @@ class XthinToolkit():
     def poke(self, address: int, value: int) -> int:
         """Write value to address in the target machine memory."""
         return xlink.poke(C64Mem.ZP01_MEM, self.BANK, address, value)
+
 
     def load(self, memory: int, address: int, data: bytes, size: int) -> bool:
         """Load size bytes of data obtained from the memory area pointed to by data to address in the C64 memory."""

@@ -77,11 +77,10 @@ class Button(BaseWidget):
         if key == C64Keys.RETURN and self.focused:
             self.callback()
             return True
-        elif key == C64Keys.UP_ARROW:
+        elif key == C64Keys.UP_ARROW:  # Jump to next widget
             assert self.parent is not None
             if self.parent.focus_next_widget():
-                # redraw the screen
-                self.parent.screen_tainted = True
+                self.parent.must_rerender = True
                 return True
         return False
 
@@ -110,16 +109,15 @@ class Input(BaseWidget):
         if key == C64Keys.RETURN:
             assert self.parent is not None
             if self.parent.focus_next_widget():
-                # redraw the screen
-                self.parent.screen_tainted = True
+                self.parent.must_rerender = True
                 return True
         elif key == C64Keys.DEL:
             self.text = self.text[:-1]
-            self.parent.screen_tainted = True
+            self.parent.must_rerender = True
             return True
         elif c64k.is_printable():  # TODO key codes must be encoded to ASCII first
             self.text += c64k.utf()
-            self.parent.screen_tainted = True
+            self.parent.must_rerender = True
             return True
         return False
 

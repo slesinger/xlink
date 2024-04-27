@@ -24,8 +24,7 @@ class BaseApp(XthinToolkit):
             elif widget.focused:
                 if widget.on_key(key):
                     break  # return if key was fulfilled
-        if self.screen_tainted:
-            self.on_show()
+        self.on_show()
 
 
     def on_start(self) -> None:
@@ -37,9 +36,9 @@ class BaseApp(XthinToolkit):
         pass
     
     def on_show(self):
-        self.screen.clear()
-        self.render_widgets()
-        self.draw()
+        if self.must_rerender:
+            self.render_widgets()
+            self.draw_to_c64()
     
     def on_hide(self):
         pass

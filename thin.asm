@@ -335,6 +335,7 @@ fast:	// TODO only fast is implemented in the first version
 	lda $dd01  // read command
 	sta cmd
 	:ack()
+	lda cmd
 	cmp #$00  // if cmd == 0, it is the end of the file
 	bne !loop-
 	jmp done
@@ -378,7 +379,7 @@ copy_n:
 	clc
 	adc start
 	sta start
-	bvc !loop-  // go to next command
+	bcc !loop-  // go to next command
 	inc start+1
 	jmp !loop-
 
@@ -404,7 +405,7 @@ recv_n:
 	clc
 	adc start
 	sta start
-	bvc !+
+	bcc !+
 	inc start+1
 !:	jmp !loop-
 
@@ -414,7 +415,7 @@ inc_start_address:
 	clc
 	adc start
 	sta start
-	bvc !+
+	bcc !+
 	inc start+1
 !:	lda #$00
 	sta cmd
