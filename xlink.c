@@ -358,6 +358,44 @@ bool xlink_load(unsigned char memory,
 
 //------------------------------------------------------------------------------
 
+bool xlink_load_rle(unsigned char memory, 
+                    unsigned char bank, 
+                    unsigned short address, 
+                    unsigned char* data,
+                    unsigned int size) {
+
+  bool result = false;
+  unsigned short start = address;
+  unsigned short end = start + size;
+
+  if(driver->open()) {
+    
+    if(!driver->ping()) {
+      SET_ERROR(XLINK_ERROR_SERVER, "no response from server");
+      goto error;
+    }
+
+    driver->output();    
+    if(!driver->send((unsigned char []) {XLINK_COMMAND_LOAD_RLE, memory, bank, 
+            lo(start), hi(start), lo(end), hi(end)}, 7)) goto error;
+
+    if(!driver->send(data, size)) goto error;
+
+    driver->close();
+    result = true;
+  }
+
+ done:
+  CLEAR_ERROR_IF(result);
+  return result;
+
+ error:
+  driver->close();
+  goto done;
+}
+
+//------------------------------------------------------------------------------
+
 bool xlink_save(unsigned char memory, 
                 unsigned char bank, 
                 unsigned short address, 

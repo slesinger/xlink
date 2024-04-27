@@ -103,6 +103,11 @@ irq: {
 	jmp load
 
 !next:
+	cpy #Command.load_rle  // dispatch command
+	bne !next+
+	jmp load_rle
+
+!next:
 	cpy #Command.save
 	bne !next+
 	jmp save
@@ -291,6 +296,171 @@ done:
 	:relinkBasic()
 	:screenOn()
 	jmp irq.done
+}
+
+
+// Received RLE data must always be NULL terminated at the end of the file
+// Structure of the RLE data:
+//   1 byte: command
+//   n bytes: data
+//   repeat command - data until command == 0 is received
+// Command byte:
+//   bit 6-7:
+//     00: copy following byte n-time (max 63+1 times) (n=bit 0-5)
+//     01: receive n bytes (max 63+1) as usual (n=bit 0-5)
+//     10: increase (start) address by n (max 63+1) (n=bit 0-6)
+//     11: set (start) to absolute address to coming <low nibble> <high nibble> (2 bytes) (bits 0-6 set to 0)
+
+load_rle: {
+	jsr readHeader
+	:screenOff()
+	
+	:checkBasic()
+	
+	ldy #$00
+	
+	lda mem         // check if specific memory config was requested
+	and #$7f
+	cmp #$37
+	beq fast
+	jmp slow
+
+fast:	// TODO only fast is implemented in the first version
+!loop:
+	lda cmd
+	cmp #$00
+	bne dispatch_cmd
+	// read command
+	:wait()
+	lda $dd01  // read command
+	sta cmd
+	:ack()
+	cmp #$00  // if cmd == 0, it is the end of the file
+	bne !loop-
+	jmp done
+dispatch_cmd:
+	and #%11000000
+	cmp #%00000000
+	beq copy_n_bytes
+	cmp #%01000000
+	beq receive_n_bytes
+	cmp #%10000000
+	beq inc_start_address
+	cmp #%11000000
+	bne !+ 
+	jmp set_start_address
+!:	brk // assert, never come here
+
+copy_n_bytes:
+	lda cmd
+	// copy following byte n-time (n=bit 0-6)
+	and #$3f
+	sta copy_n+1  // how many bytes
+	inc copy_n+1  // make it range of n=<1-64> bytes
+	// receive the byte to be copied
+	:wait()
+	lda $dd01  // this is the byte to be copied
+	tay
+	:ack()
+	tya
+	ldy #$00
+copy_loop:
+	sta (start),y   // write with normal memory config
+	iny
+copy_n:
+	cpy #$ff
+	bne copy_loop
+	// command fully processed, reset it
+	lda #$00
+	sta cmd
+	// add to n to $start address
+	lda copy_n+1  // load n
+	clc
+	adc start
+	sta start
+	bvc !loop-  // go to next command
+	inc start+1
+	jmp !loop-
+
+receive_n_bytes:
+	lda cmd
+	and #$3f
+	sta recv_n+1  //how many bytes
+	inc recv_n+1  // make it range of n=<1-64> bytes
+	ldy #$00
+receive_loop:
+	:wait()
+	lda $dd01
+	sta (start),y   // write with normal memory config
+	:ack()
+	iny
+recv_n:
+	cpy #$ff
+	bne receive_loop
+	// command fully processed, reset it
+	lda #$00
+	sta cmd
+	lda recv_n+1  // load n
+	clc
+	adc start
+	sta start
+	bvc !+
+	inc start+1
+!:	jmp !loop-
+
+inc_start_address:
+	lda cmd
+	and #$3f
+	clc
+	adc start
+	sta start
+	bvc !+
+	inc start+1
+!:	lda #$00
+	sta cmd
+	jmp !loop-
+
+set_start_address:
+	:wait()
+	lda $dd01
+	sta start
+	:ack()
+	:wait()
+	lda $dd01
+	sta start+1
+	:ack()
+	lda #$00
+	sta cmd
+	jmp !loop-
+
+slow:	
+!loop:
+	:wait()
+	lda $dd01
+	ldx #$33        // write to ram with io disabled
+	stx $01
+	sta (start),y
+	lda #$37
+	sta $01
+	:ack()
+	inc start
+	bne !check+
+	inc start+1
+
+!check:	
+	lda start+1
+	cmp end+1
+	bne !loop-
+
+	lda start
+	cmp end
+	bne !loop-
+
+done:
+	:relinkBasic()
+	:screenOn()
+	jmp irq.done
+cmd: .byte $00  // 00: comming byte is command and parse it as follows: bit7==1 copy following byte n-time (n=bit 0-6); bit7==0 receive n bytes as usual (n=bit 0-6)
 }
 
 //------------------------------------------------------------------------------

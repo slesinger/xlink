@@ -23,16 +23,21 @@ class XthinToolkit():
     def draw(self) -> None:
         """Figure out screen changes and push them to xlink"""
         self.screen_tainted = False
-        changes:list[GetChangesReturn] = self.screen.get_changes()
-        for change in changes:
-            rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
-            sleep(.5)  # next fails without this
-            rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
-            sleep(.5)  # next fails without this
-            print(f"Pushed screen {rc1}, color {rc2}")
-            # self.draw_tty()#what=change.char)
+        # changes:list[GetChangesReturn] = self.screen.get_changes()
+        # for change in changes:
+        #     rc1 = xlink.load(C64Mem.ZP01_MEM, self.BANK, self.screen.address + change.mem_pos, change.char, change.length)  # load current xthin screen
+        #     sleep(.5)  # next fails without this
+        #     rc2 = xlink.load(C64Mem.ZP01_MEM, self.BANK, C64Mem.COLOR_MEM_D800 + change.mem_pos, change.color, change.length)  # load current xthin color
+        #     sleep(.5)  # next fails without this
+        #     print(f"Pushed screen {rc1}, color {rc2}")
+        #     # self.draw_tty()#what=change.char)
             
-            
+        rle_data = self.screen.get_changes()
+        rc1 = xlink.load_rle(C64Mem.ZP01_MEM, self.BANK, TextScreen.address, bytes(rle_data), len(rle_data))
+        sleep(.5)  # next fails without this
+        print(f"Pushed screen {rc1}, color {'rc2'}")
+
+
     def draw_tty(self, what:bytes=b'') -> None:
         """Draw the screen to the terminal."""
         if len(what) > 0:
@@ -63,7 +68,12 @@ class XthinToolkit():
         """Load size bytes of data obtained from the memory area pointed to by data to address in the C64 memory."""
         return xlink.load(memory, self.BANK, address, data, size)
 
-   
+
+    def load_rle(self, memory: int, address: int, rle_data: bytes, size: int) -> bool:
+        """Load RLE encoded data obtained from the memory area pointed to by data to address in the C64 memory. Size is of the RLE buffer."""
+        return xlink.load_rle(memory, self.BANK, address, rle_data, size)
+
+
     def save(self, memory: int, address: int, data: bytes, size: int) -> bool:
         """Read size bytes of data beginning from address in the C64 memory and store the result in the memory area pointed to by data. The caller has to make sure that enough memory is allocated for data beforehand."""
         return xlink.save(memory, self.BANK, address, data, size)

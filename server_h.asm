@@ -80,6 +80,7 @@
 .label jump        = $05
 .label run         = $06
 .label inject      = $07
+.label load_rle    = $08
 .label identify    = $fe
 }
 	

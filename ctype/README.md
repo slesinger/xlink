@@ -3,6 +3,7 @@
 ## Immediate Goals
 partial screen update changes
 Renderovat Button a BigButton, viz https://petscii.krissz.hu
+introduce color themes (default, selected, disblaed,..)
 map CTRL like TAB? and SH_CTRL as SHIFT_TAB?
 mapovat joystick, nevesel by se do undefined vcetne modifieru? Pak by se nachal udelat CTRL jako modifier 01
 mapping function keyboard codes > ascii  https://www.c64-wiki.com/wiki/Keyboard_code

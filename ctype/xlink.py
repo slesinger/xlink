@@ -30,6 +30,15 @@ xlink_load_fxn = C_libxlink.xlink_load
 xlink_load_fxn.argtypes = [ctypes.c_char, ctypes.c_char, ctypes.c_ushort, ctypes.c_char_p, ctypes.c_uint]
 xlink_load_fxn.restype = ctypes.c_bool
 
+# bool xlink_load_rle(unsigned char memory, 
+#                     unsigned char bank, 
+#                     unsigned short address, 
+#                     unsigned char* data,
+#                     unsigned int size)
+xlink_load_rle_fxn = C_libxlink.xlink_load_rle
+xlink_load_rle_fxn.argtypes = [ctypes.c_char, ctypes.c_char, ctypes.c_ushort, ctypes.c_char_p, ctypes.c_uint]
+xlink_load_rle_fxn.restype = ctypes.c_bool
+
 # bool xlink_save(unsigned char memory, 
 #                 unsigned char bank, 
 #                 unsigned short address, 
@@ -63,6 +72,9 @@ class Xlink():
 
     def load(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
         return xlink_load_fxn(memory, bank, address, data, size)
+
+    def load_rle(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
+        return xlink_load_rle_fxn(memory, bank, address, data, size)
 
     def save(self, memory: int, bank: int, address: int, data: bytes, size: int) -> bool:
         return xlink_save_fxn(memory, bank, address, bytes(data), size)

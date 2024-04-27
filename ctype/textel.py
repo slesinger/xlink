@@ -12,6 +12,7 @@ class Textel():
     def __init__(self) -> None:
         self._character = " "
         self._color = Color.LIGHT_BLUE
+        self.tainted = False
         
         
     def get_petscii(self) -> int:
