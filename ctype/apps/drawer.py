@@ -15,14 +15,20 @@ class Drawer(BaseApp):
     
     @staticmethod
     def set_active_app(app: BaseApp, avoid_show:bool=False) -> None:
+        for ra in Drawer.running_apps:
+            if ra == app:
+                ra.active = True
+                if not avoid_show:
+                    app.clear_screen()
+                    app.on_show()
+            elif ra.active:
+                ra.on_hide()
+                ra.active = False
         Drawer.active_app = app
-        if not avoid_show:
-            app.on_show()
-    
+
     @staticmethod
     def set_active_app_by_idx(idx: int) -> None:
-        Drawer.active_app = Drawer.running_apps[idx]
-        Drawer.active_app.on_show()
+        Drawer.set_active_app(Drawer.running_apps[idx])
     
     @staticmethod
     def add_app(app: BaseApp) -> None:
@@ -33,8 +39,8 @@ class Drawer(BaseApp):
     def remove_app(app: BaseApp) -> None:
         app.on_hide()
         app.on_stop()
-        Drawer.running_apps.remove(app)
         Drawer.set_active_app_by_idx(0)
+        Drawer.running_apps.remove(app)
 
 
 
@@ -49,14 +55,12 @@ class Drawer(BaseApp):
         self.add_widget(Input(6, 15, 10, text="Medlik", focused=False))
 
     def exec_list(self):
-        print("Starting application List")
         import apps.list
         app = apps.list.ListApp()
         self.add_app(app)
         self.set_active_app(app)
         
     def exec_random(self):
-        print("Starting application Random")
         import apps.random
         app = apps.random.RandomApp()
         self.add_app(app)

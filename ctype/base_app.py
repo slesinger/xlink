@@ -5,6 +5,7 @@ from widgets import HotKey, VoidWidget
 class BaseApp(XthinToolkit):
     
     widgets: list[BaseWidget]
+    active: bool = False
 
     def __init__(self):
         self.widgets = []  # Must be explicitly initialized
@@ -24,7 +25,8 @@ class BaseApp(XthinToolkit):
             elif widget.focused:
                 if widget.on_key(key):
                     break  # return if key was fulfilled
-        self.on_show()
+        if self.must_rerender and self.active:
+            self.on_show()
 
 
     def on_start(self) -> None:
@@ -36,9 +38,9 @@ class BaseApp(XthinToolkit):
         pass
     
     def on_show(self):
-        if self.must_rerender:
-            self.render_widgets()
-            self.draw_to_c64()
+        """Render widgets to the screen."""
+        self.render_widgets()
+        self.draw_to_c64()
     
     def on_hide(self):
         pass

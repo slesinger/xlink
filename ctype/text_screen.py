@@ -17,14 +17,16 @@ class TextScreen():
     TEXT_SCREEN_SIZE = TEXT_SCREEN_WIDTH * TEXT_SCREEN_HEIGHT
 
     address: int = 0x0400  # TODO plan is to make this dynamic, too much refactor at the moment
+    color_address: int = 0xd800  # TODO plan is to make this dynamic, too much refactor at the moment
     buffer:list[list[Textel]]  # address me as buffer[y][x]
 
     def __init__(self) -> None:
         self.clear()
-        
+
         
     def clear(self) -> None:
         self.buffer = [[Textel() for _ in range(self.TEXT_SCREEN_WIDTH)] for _ in range(self.TEXT_SCREEN_HEIGHT)]
+
 
     def is_tainted(self) -> bool:
         for y in range(self.TEXT_SCREEN_HEIGHT):
@@ -47,7 +49,7 @@ class TextScreen():
         self.buffer[y][x].put_char(char, color=color)
 
 
-    def get_changes(self) -> bytearray|None:
+    def get_changes(self, clear_screen:bool=False) -> bytearray|None:
         """Return a list of Textel objects that have changed since last draw.
         Notes to figure out approach:
         - Copy bytes is benefit when 3 or more bytes are the same. Do not use it for less than 3 bytes.
@@ -79,8 +81,6 @@ class TextScreen():
             11: set (start) to absolute address to coming <low nibble> <high nibble> (2 bytes) (bits 0-6 set to 0)
         RLE data must always be NULL terminated at the end of the file.
         """
-        char = bytearray()
-        color = bytearray()
         # Rearrange 2D buffer to 1D list
         buffer1d:list[Textel] = list(chain.from_iterable(self.buffer)) + 3 * [Textel()]  # add 2 extra cells to avoid out of range
         assert len(buffer1d) == self.TEXT_SCREEN_SIZE + 3
@@ -91,11 +91,9 @@ class TextScreen():
             if part_started == False and buffer1d[i].tainted:
                 current_part["start"] = i
                 part_started = True
-                print(f"Part started at {i}")
                 continue
             if (part_started == True and buffer1d[i].tainted == False and buffer1d[i+1].tainted == False and buffer1d[i+2].tainted == False) or i == self.TEXT_SCREEN_SIZE:
                 current_part["end"] = i-1
-                print(f"Part ended at {i-1}")
                 part_started = False
                 # Add part to list
                 parts.append(current_part)
@@ -128,10 +126,11 @@ class TextScreen():
 
         # Create RLE data
 
-        # clear screen
+        # Clear_screen
         # rle_data = bytearray(b'\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x3f\x20\x27\x20\xc0\x00\x04')
 
         rle_data = bytearray()
+        rle_color_temp = bytearray()
         # set start address
         current_position = 0  # address 0x0400
         for partlet in partlets:
@@ -140,20 +139,26 @@ class TextScreen():
             assert skip_len >= 0 and skip_len <= self.TEXT_SCREEN_SIZE
             if skip_len > 64:
                 rle_data.extend(b'\xc0')
+                rle_color_temp.extend(b'\x00')
                 rle_data.extend((self.address + partlet["start"]).to_bytes(2, byteorder='little'))
+                rle_color_temp.extend((self.color_address + partlet["start"]).to_bytes(2, byteorder='little'))
             elif skip_len > 0:
                 rle_data.extend((128 + skip_len).to_bytes(1, byteorder='little'))  # 128 is skip command
+                rle_color_temp.extend((128 + skip_len).to_bytes(1, byteorder='little'))
             current_position = partlet ["end"] + 1
 
+            # put data
             if partlet["type"] == "copy":
                 pass
             elif partlet["type"] == "receive":
                 d = 64 + partlet ["end"] - partlet["start"]  # end is inclusive hence +1 but n for recv command requires -1 => -1+1=0. 64 is added to make it a receive command
                 rle_data.extend(d.to_bytes(1, byteorder='big'))  # command receive with n-1 length
-                rle_data.extend([buffer1d[i].get_petscii() for i in range(partlet["start"], partlet["end"]+1)]) # actual data
+                rle_color_temp.extend(d.to_bytes(1, byteorder='big'))  # command receive with n-1 length
+                rle_data.extend([buffer1d[i].get_petscii() for i in range(partlet["start"], partlet["end"]+1)]) # actual char data
+                rle_color_temp.extend([buffer1d[i].get_color_num() for i in range(partlet["start"], partlet["end"]+1)]) # actual char data
 
+        rle_data.extend(b'\xc0\x00\xd8' + rle_color_temp)  # jump to color map and append color data
         rle_data.extend(b'\x00')
-        print(rle_data)
         return rle_data
 
 

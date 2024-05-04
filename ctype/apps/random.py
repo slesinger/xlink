@@ -20,10 +20,8 @@ class RandomApp(BaseApp):
 
     def on_key(self, key: int) -> None:
         c64key = C64Keys.get_key_by_idx(key)
-        print(f"random: handling key {type(key)}")
         self.random_label.set_text(c64key.name + " " + c64key.utfval)
         self.on_show()
             
     def exec_quit(self):
-        print("quiting Random app")
         Drawer.remove_app(self)

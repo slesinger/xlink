@@ -20,6 +20,9 @@ class XthinToolkit():
         self.cursor = Cursor()
         self.must_rerender = True
 
+    def clear_screen(self) -> None:
+        self.screen.clear()
+        self.must_rerender = True
 
     def draw_to_c64(self) -> None:
         """Figure out screen changes and push them to xlink"""
